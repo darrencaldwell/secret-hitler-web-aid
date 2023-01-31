@@ -15,7 +15,6 @@ const WS_URL = 'ws://127.0.0.1:8000';
 
 export default function App() {
 
-
   return (
     <div>
       <BrowserRouter>
@@ -32,25 +31,26 @@ const createRoom = async (name) => {return {lobbyId: "some_lobby"}}
 const joinRoom = async (lobbyId) => {return {lobbyId: lobbyId}}
 
 function Home() {
+
+  const [name, setName] = useState('');
+
   return (
   <div>
-    <h2>Shitler</h2>
+    <h2>shitler</h2>
+    <p>hello {name}</p>
+    <label>
+      name:
+      <input type="text"  onChange={e => setName(e.target.value)}/>
+    </label>
 
-    <form>
-      <label>
-        Name:
-        <input type="text" name="name" />
-      </label>
-      <input type="submit" value="Submit" />
-    </form>
-    <Link to="/lobby" state={{lobbyId: "lob1", name: "james", isJoin: true }}>
+    <Link to="/lobby" state={{lobbyId: "lob1", name: name, isJoin: true }}>
      <button type="button">
-          join room
+      join room
      </button>
     </Link>
-    <Link to="/lobby" state={{name: "james", isJoin: false }}>
+    <Link to="/lobby" state={{name: name, isJoin: false }}>
      <button type="button">
-          create room
+        create room
      </button>
     </Link>
   </div>
@@ -59,6 +59,9 @@ function Home() {
 
 function Lobby() {
   let { state } = useLocation()
+
+  const [players, setPlayers] = useState(["player1", "player2"]);
+  const [roomData, setRoomData] = useState({foo:123})
 
   // const {
   //   sendMessage,
@@ -74,18 +77,35 @@ function Lobby() {
   // });
   console.log('opened websocket connection!!!')
 
-
-  const [roomData, setRoomData] = useState({foo:123})
   useEffect(() => {
     (async () => {
       setRoomData(!state.isJoin ? await createRoom(state.name) : await joinRoom(state.lobbyId))
+      players.push(state.name)
     })()
   }, [])
-  
-  //setRoomData(!state.isJoin ? ))
-  //setRoomData({foo: 123})
 
-  return <h2>Lobby {roomData.lobbyId}</h2>
+
+
+  console.log(players)
+
+  return (
+  <div>
+    <h2>Lobby {roomData.lobbyId}</h2>
+    <button onClick={() => setPlayers( players.concat(["a player"]) )}>add a player</button>
+    <h3>Players:</h3>
+    {players.join()}
+    <br/>
+    <label>ready?
+    <input
+        type="checkbox"
+        name="ready?"
+        // checked={isSelected}
+        // onChange={onCheckboxChange}
+        className="form-check-input"
+      />
+      </label>
+  </div>
+  )
 }
 
 function Users() {
